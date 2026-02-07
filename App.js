@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet, View, Alert, Text, TouchableOpacity } from 'react-native';
 import ActivitySelector from './components/ActivitySelector';
 import ActivityTracker from './components/ActivityTracker';
 import CelebrationModal from './components/CelebrationModal';
+import SignInScreen from './screens/SignInScreen';
 
 // Default activities
 const DEFAULT_ACTIVITIES = [
@@ -38,6 +39,7 @@ const DEFAULT_ACTIVITIES = [
 ];
 
 export default function App() {
+  const [user, setUser] = useState(null);
   const [activities, setActivities] = useState(DEFAULT_ACTIVITIES);
   const [selectedActivity, setSelectedActivity] = useState(DEFAULT_ACTIVITIES[0]);
   const [attendedDays, setAttendedDays] = useState(new Set());
@@ -47,6 +49,31 @@ export default function App() {
     oldCount: 0,
     newCount: 0,
   });
+
+  // Handle user sign in
+  const handleSignIn = (userData) => {
+    setUser(userData);
+    // TODO: Load user's data from backend here
+  };
+
+  // Handle user sign out
+  const handleSignOut = () => {
+    // Use window.confirm for web compatibility
+    const confirmed = window.confirm('Are you sure you want to sign out?');
+
+    if (confirmed) {
+      setUser(null);
+      // Reset data (or you could save before clearing)
+      setAttendedDays(new Set());
+      setActivities(DEFAULT_ACTIVITIES);
+      setSelectedActivity(DEFAULT_ACTIVITIES[0]);
+    }
+  };
+
+  // Show sign-in screen if user is not authenticated
+  if (!user) {
+    return <SignInScreen onSignIn={handleSignIn} />;
+  }
 
   // Calculate total count for an activity
   const getActivityCount = (activityId) => {
@@ -131,6 +158,17 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      {/* User Header */}
+      <View style={styles.userHeader}>
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>{user.name}</Text>
+          <Text style={styles.userEmail}>{user.email}</Text>
+        </View>
+        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
+
       <ActivitySelector
         activities={activities}
         selectedActivity={selectedActivity}
@@ -162,5 +200,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  userHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    paddingTop: 50,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  userEmail: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  signOutButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#DDD',
+  },
+  signOutText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
   },
 });

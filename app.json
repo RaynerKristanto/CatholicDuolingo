@@ -3,6 +3,7 @@
     "name": "CatholicDuolingo",
     "slug": "catholic-duolingo",
     "version": "1.0.0",
+    "scheme": "catholicduolingo",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
